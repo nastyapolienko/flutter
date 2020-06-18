@@ -6,98 +6,81 @@ import 'dart:convert';
 import 'package:fetchlist/info.dart';
 import 'package:fetchlist/create.dart';
 
-void main() => runApp(new MyApp());
+void main() => runApp(App());
 
-class MyApp extends StatelessWidget {
+class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
+    return MaterialApp(
       title: 'Flutter Demo',
-      theme: new ThemeData(
+      theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
-      home: new MyHomePage(title: 'Books'),
+      home: HomePage(),
     );
   }
 }
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
 
-  final String title;
+class HomePage extends StatefulWidget {
 
   @override
-  _MyHomePageState createState() => new _MyHomePageState();
+  _HomePageState createState() => _HomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _HomePageState extends State<HomePage> {
 
-  Future<List<Book>> _getBooks() async {
-    var data = await http.get("http://192.168.0.5:8080/books");
-    var jsonData = json.decode(data.body);
-    List<Book> books = [];
+  List<Book> _books = List<Book>();
 
-    for(var u in jsonData){
-      Book book = Book();
-      books.add(book);
+  Future<List<Book>> fetchBooks() async {
+    var url = 'http://192.168.0.5:8080/books';
+    var response = await http.get(url);
+
+    var books = List<Book>();
+
+    if (response.statusCode == 200) {
+      var booksJson = json.decode(response.body);
+      for (var bookJson in booksJson) {
+        books.add(Book.fromJson(bookJson));
+      }
     }
-
-    print(books.length);
     return books;
   }
 
   @override
+  void initState() {
+    fetchBooks().then((value) {
+      setState(() {
+        _books.addAll(value);
+      });
+    });
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: (){
-          Navigator.push(
-              context,
-              new MaterialPageRoute(
-                  builder: (context) => CreateBook())
-          );
-        },
-      ),
-      appBar: new AppBar(
-        title: new Text(widget.title),
-      ),
-      body: Container(
-
-        child: FutureBuilder(
-          future: _getBooks(),
-          builder: (BuildContext context, AsyncSnapshot snapshot){
-            print("snapshot data");
-            print(snapshot.data);
-
-            if(snapshot.data == null){
-              return Container(
-                  child: Center(
-                      child: Text("Loading...")
-                  )
-              );
-            } else {
-              return ListView.builder(
-                itemCount: snapshot.data.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return ListTile(
-                    title: Text(snapshot.data[index].name!=null?snapshot.data[index].bookname:'There is null'),
-                    onTap: (){
-                      Navigator.push(
-                          context,
-                          new MaterialPageRoute(
-                          builder: (context) => DetailPage(
-                          snapshot.data[index].bookname, index
-                          ))
-                      );
-                    },
-                  );
-                },
-              );
-            }
-          },
+    return Scaffold(
+        appBar: AppBar(
+          title: Text('Books'),
         ),
-      ),
+        body: ListView.builder(
+          itemBuilder: (context, index) {
+            return Card(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: <Widget>[
+                  Text(
+                    _books[index].bookname,
+                    style: TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.bold
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+          itemCount: _books.length,
+        )
     );
   }
 }
-
