@@ -80,14 +80,14 @@ class _MyHomePageState extends State<MyHomePage> {
                 itemCount: snapshot.data.length,
                 itemBuilder: (BuildContext context, int index) {
                   return ListTile(
-                    title: Text(snapshot.data[index].name!=null?snapshot.data[index].bookname:'There is null'),
+                    title: Text(snapshot.data[index].bookname!=null?snapshot.data[index].bookname:'There is null'),
                     onTap: (){
                       Navigator.push(
                           context,
                           new MaterialPageRoute(
-                          builder: (context) => DetailPage(
-                          snapshot.data[index].bookname, index
-                          ))
+                              builder: (context) => DetailPage(
+                                  snapshot.data[index].bookname, index
+                              ))
                       );
                     },
                   );
@@ -100,4 +100,3 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
-
