@@ -86,7 +86,7 @@ class Book {
 
   factory Book.fromJson(Map<String, dynamic> json) {
     return Book(
-      id: json['id'],
+      id: json['bid'],
       bookname: json['bookname'],
       year: json['year'],
     );
