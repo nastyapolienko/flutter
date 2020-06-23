@@ -1,102 +1,94 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 import 'package:fetchlist/info.dart';
-import 'package:fetchlist/create.dart';
 
-void main() => runApp(new MyApp());
+Future<List<Book>> fetchBooks(http.Client client) async {
+  final response =
+  await client.get('http://192.168.0.5:8080/books');
+
+  // Use the compute function to run parsePhotos in a separate isolate.
+  return compute(parseBooks, response.body);
+}
+
+// A function that converts a response body into a List<Photo>.
+List<Book> parseBooks(String responseBody) {
+  final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
+
+  return parsed.map<Book>((json) => Book.fromJson(json)).toList();
+}
+
+
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return new MaterialApp(
-      title: 'Flutter Demo',
-      theme: new ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: new MyHomePage(title: 'Books'),
+    final appTitle = 'Isolate Demo';
+
+    return MaterialApp(
+      title: appTitle,
+      home: MyHomePage(title: appTitle),
     );
   }
 }
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
 
+class MyHomePage extends StatelessWidget {
   final String title;
 
-  @override
-  _MyHomePageState createState() => new _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-
-  Future<List<Book>> _getBooks() async {
-    var data = await http.get("http://192.168.0.5:8080/books");
-    var jsonData = json.decode(data.body);
-    List<Book> books = [];
-
-    for(var u in jsonData){
-      Book book = Book();
-      books.add(book);
-    }
-
-    print(books.length);
-    return books;
-  }
+  MyHomePage({Key key, this.title}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return new Scaffold(
-      floatingActionButton: FloatingActionButton(
-        child: Icon(Icons.add),
-        onPressed: (){
-          Navigator.push(
-              context,
-              new MaterialPageRoute(
-                  builder: (context) => CreateBook())
-          );
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title),
+      ),
+      body: FutureBuilder<List<Book>>(
+        future: fetchBooks(http.Client()),
+        builder: (context, snapshot) {
+          if (snapshot.hasError) print(snapshot.error);
+
+          return snapshot.hasData
+              ? BooksList(books: snapshot.data)
+              : Center(child: CircularProgressIndicator());
         },
       ),
-      appBar: new AppBar(
-        title: new Text(widget.title),
-      ),
-      body: Container(
+    );
+  }
+}
 
-        child: FutureBuilder(
-          future: _getBooks(),
-          builder: (BuildContext context, AsyncSnapshot snapshot){
-            print("snapshot data");
-            print(snapshot.data);
+class BooksList extends StatelessWidget {
+  final List<Book> books;
 
-            if(snapshot.data == null){
-              return Container(
-                  child: Center(
-                      child: Text("Loading...")
-                  )
-              );
-            } else {
-              return ListView.builder(
-                itemCount: snapshot.data.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return ListTile(
-                    title: Text(snapshot.data[index].bookname!=null?snapshot.data[index].bookname:'There is null'),
-                    onTap: (){
-                      Navigator.push(
-                          context,
-                          new MaterialPageRoute(
-                              builder: (context) => DetailPage(
-                                  snapshot.data[index].bookname, index
-                              ))
-                      );
-                    },
-                  );
-                },
-              );
-            }
-          },
-        ),
-      ),
+  BooksList({Key key, this.books}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return GridView.builder(
+      itemCount: books.length,
+      itemBuilder: (context, index) {
+        return Text(books[index].bookname);
+      },
+    );
+  }
+}
+
+class Book {
+  final int id;
+  final String bookname;
+  final String year;
+
+  Book({this.id, this.bookname, this.year});
+
+  factory Book.fromJson(Map<String, dynamic> json) {
+    return Book(
+      id: json['id'],
+      bookname: json['bookname'],
+      year: json['year'],
     );
   }
 }
