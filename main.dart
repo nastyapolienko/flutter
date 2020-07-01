@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:fetchlist/info.dart';
+import 'package:fetchlist/create.dart';
 
 Future<List<Book>> fetchBooks(http.Client client) async {
   final response =
@@ -21,13 +22,28 @@ List<Book> parseBooks(String responseBody) {
   return parsed.map<Book>((json) => Book.fromJson(json)).toList();
 }
 
+class Book {
+  final int bid;
+  final String bookname;
+  final String year;
+
+  Book({this.bid, this.bookname, this.year});
+
+  factory Book.fromJson(Map<String, dynamic> json) {
+    return Book(
+      bid: json['bid'] as int,
+      bookname: json['bookname'] as String,
+      year: json['year'] as String,
+    );
+  }
+}
 
 void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final appTitle = 'Isolate Demo';
+    final appTitle = 'Books';
 
     return MaterialApp(
       title: appTitle,
@@ -57,6 +73,13 @@ class MyHomePage extends StatelessWidget {
               : Center(child: CircularProgressIndicator());
         },
       ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: (){
+          Navigator.push(context,
+              new MaterialPageRoute(builder: (context) => CreateBook())
+          );
+        }
+      )
     );
   }
 }
@@ -68,27 +91,18 @@ class BooksList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GridView.builder(
+    return ListView.builder(
       itemCount: books.length,
       itemBuilder: (context, index) {
-        return Text(books[index].bookname);
+        return ListTile(
+          title: Text(books[index].bookname),
+          onTap:(){
+            Navigator.push(context,
+                new MaterialPageRoute(builder: (context) => DetailPage(books[index], index))
+            );
+          }
+        );
       },
-    );
-  }
-}
-
-class Book {
-  final int id;
-  final String bookname;
-  final String year;
-
-  Book({this.id, this.bookname, this.year});
-
-  factory Book.fromJson(Map<String, dynamic> json) {
-    return Book(
-      id: json['bid'],
-      bookname: json['bookname'],
-      year: json['year'],
     );
   }
 }
