@@ -18,21 +18,21 @@ Future<Book> fetchBook(index) async {
 class DetailPage extends StatelessWidget {
 
   final Book book;
-  final int index;
-  DetailPage(this.book, this.index);
+  final int id;
+  DetailPage(this.book, this.id);
 
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("book.bookname"),
+          title: Text(book.bookname),
         ),
         body: Center(
 
           child: FutureBuilder<Book>(
 
-            future: fetchBook(index),
+            future: fetchBook(id),
             builder: (context, snapshot) {
               if (snapshot.hasData) {
                 return Text(snapshot.data.bookname + "\n" + snapshot.data.year);
@@ -50,18 +50,5 @@ class DetailPage extends StatelessWidget {
   }
 }
 
-class Book {
-  final int id;
-  final String bookname;
-  final String year;
 
-  Book({this.id, this.bookname, this.year});
 
-  factory Book.fromJson(Map<String, dynamic> json) {
-    return Book(
-      id: json['bid'],
-      bookname: json['bookname'],
-      year: json['year'],
-    );
-  }
-}

@@ -17,7 +17,7 @@ Future<Book> createBook(String bookname) async {
   );
 
   if (response.statusCode == 200) {
-    return Book.fromJson(json.decode(response.body));
+    return Book.fromJson(json.decode(response.body));;
   } else {
     throw Exception('Failed to create a book.');
   }
@@ -54,8 +54,7 @@ class CreateBook extends StatelessWidget {
                 child: Text('Add book'),
                 onPressed: () {
                   _futureAlbum = createBook(_controller.text);
-                  new MaterialPageRoute(
-                      builder: (context) => MyHomePage());
+                  Navigator.pop(context);
                 },
               ),
             ],
