@@ -4,8 +4,10 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
 import 'package:fetchlist/info.dart';
 import 'package:fetchlist/create.dart';
+
 
 Future<List<Book>> fetchBooks(http.Client client) async {
   final response =
@@ -22,21 +24,7 @@ List<Book> parseBooks(String responseBody) {
   return parsed.map<Book>((json) => Book.fromJson(json)).toList();
 }
 
-class Book {
-  final int bid;
-  final String bookname;
-  final String year;
 
-  Book({this.bid, this.bookname, this.year});
-
-  factory Book.fromJson(Map<String, dynamic> json) {
-    return Book(
-      bid: json['bid'] as int,
-      bookname: json['bookname'] as String,
-      year: json['year'] as String,
-    );
-  }
-}
 
 void main() => runApp(MyApp());
 
@@ -78,16 +66,18 @@ class MyHomePage extends StatelessWidget {
           Navigator.push(context,
               new MaterialPageRoute(builder: (context) => CreateBook())
           );
-        }
+        },
+        child: const Icon(Icons.add),
       )
     );
   }
 }
 
-class BooksList extends StatelessWidget {
-  final List<Book> books;
 
+class BooksList extends StatelessWidget {
   BooksList({Key key, this.books}) : super(key: key);
+  final List<Book> books;
+  Book book;
 
   @override
   Widget build(BuildContext context) {
@@ -96,13 +86,39 @@ class BooksList extends StatelessWidget {
       itemBuilder: (context, index) {
         return ListTile(
           title: Text(books[index].bookname),
+//          subtitle: Checkbox(
+//            value: book.isDone,
+//            onChanged: (bool value){
+//
+//                book.isDone = value;
+//
+//            }
+//          ),
           onTap:(){
             Navigator.push(context,
-                new MaterialPageRoute(builder: (context) => DetailPage(books[index], index))
+                new MaterialPageRoute(builder: (context) => DetailPage(books[index]))
             );
           }
         );
       },
+    );
+  }
+}
+
+class Book {
+  final int bid;
+  final String bookname;
+  final String year;
+  bool isDone = false;
+
+  Book({this.bid, this.bookname, this.year, this.isDone = false});
+
+  factory Book.fromJson(Map<String, dynamic> json) {
+    return Book(
+      bid: json['bid'] as int,
+      bookname: json['bookname'] as String,
+      year: json['year'] as String,
+      isDone: json['read'] as bool,
     );
   }
 }
