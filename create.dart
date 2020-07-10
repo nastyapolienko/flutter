@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 import 'package:fetchlist/info.dart';
 import 'package:fetchlist/main.dart';
 
-Future<Book> createBook(String bookname) async {
+Future<Book> createBook(String bookname, year) async {
   final http.Response response = await http.post(
     'http://192.168.0.5:8080/books',
     headers: <String, String>{
@@ -13,6 +13,7 @@ Future<Book> createBook(String bookname) async {
     },
     body: jsonEncode(<String, String>{
       'bookname': bookname,
+      'year' : year,
     }),
   );
 
@@ -26,6 +27,7 @@ Future<Book> createBook(String bookname) async {
 
 class CreateBook extends StatelessWidget {
   final TextEditingController _controller = TextEditingController();
+  final TextEditingController myController = TextEditingController();
   Future<Book> _futureAlbum;
 
   @override
@@ -50,10 +52,14 @@ class CreateBook extends StatelessWidget {
                 controller: _controller,
                 decoration: InputDecoration(hintText: 'Enter Title'),
               ),
+              TextField(
+                controller: myController,
+                decoration: InputDecoration(hintText: 'Enter Year'),
+              ),
               RaisedButton(
                 child: Text('Add book'),
                 onPressed: () {
-                  _futureAlbum = createBook(_controller.text);
+                  _futureAlbum = createBook(_controller.text, myController.text);
                   Navigator.pop(context);
                 },
               ),
@@ -76,4 +82,5 @@ class CreateBook extends StatelessWidget {
     );
   }
 }
+
 

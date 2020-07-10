@@ -79,6 +79,7 @@ class BooksList extends StatelessWidget {
   final List<Book> books;
   Book book;
 
+
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
@@ -111,7 +112,7 @@ class Book {
   final String year;
   bool isDone = false;
 
-  Book({this.bid, this.bookname, this.year, this.isDone = false});
+  Book({this.bid, this.bookname, this.year, this.isDone = true});
 
   factory Book.fromJson(Map<String, dynamic> json) {
     return Book(
