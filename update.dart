@@ -4,11 +4,12 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:fetchlist/info.dart';
+import 'package:fetchlist/main.dart';
 
 
-Future<Book> updateBook(bookname, id) async {
-  var a = id.toString();
+Future<Book> updateBook(bid, bookname, year) async {
+  var a = bid.toString();
+  print(a);
   final http.Response response = await http.put(
     'http://192.168.0.108:8080/books/' + a,
     headers: <String, String>{
@@ -16,6 +17,7 @@ Future<Book> updateBook(bookname, id) async {
     },
     body: jsonEncode(<String, String>{
       'bookname': bookname,
+      'year' : year,
     }),
   );
 
@@ -28,8 +30,13 @@ Future<Book> updateBook(bookname, id) async {
 
 
 
-class _MyAppState extends StatelessWidget {
-  final TextEditingController _controller = TextEditingController();
+class UpdateBook extends StatelessWidget {
+
+  final Book book;
+  UpdateBook(this.book);
+
+  final TextEditingController _controller1 = TextEditingController();
+  final TextEditingController _controller2 = TextEditingController();
   Future<Book> _futureBook;
 
   @override
@@ -48,7 +55,7 @@ class _MyAppState extends StatelessWidget {
           padding: const EdgeInsets.all(8.0),
           child: FutureBuilder<Book>(
             future: _futureBook,
-            builder: (context, snapshot) {
+            builder: (BuildContext context, snapshot) {
               if (snapshot.connectionState == ConnectionState.done) {
                 if (snapshot.hasData) {
                   return Column(
@@ -56,13 +63,17 @@ class _MyAppState extends StatelessWidget {
                     children: <Widget>[
                       Text(snapshot.data.bookname),
                       TextField(
-                        controller: _controller,
+                        controller: _controller1,
                         decoration: InputDecoration(hintText: 'Enter Name'),
+                      ),
+                      TextField(
+                        controller: _controller2,
+                        decoration: InputDecoration(hintText: 'Enter Year'),
                       ),
                       RaisedButton(
                         child: Text('Update Data'),
                         onPressed: () {
-                            _futureBook = updateBook(_controller.text, _controller.text);
+                            _futureBook = updateBook(book.bid, _controller1.text, _controller2.text);
                         },
                       ),
                     ],
@@ -70,7 +81,7 @@ class _MyAppState extends StatelessWidget {
                 } else if (snapshot.hasError) {
                   return Text("${snapshot.error}");
                 }
-              }
+              } else return Text('there is error');
 
               return CircularProgressIndicator();
             },
