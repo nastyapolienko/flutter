@@ -11,7 +11,7 @@ Future<Book> updateBook(bid, bookname, year) async {
   var a = bid.toString();
   print(a);
   final http.Response response = await http.put(
-    'http://192.168.0.108:8080/books/' + a,
+    'http://192.168.0.5:8080/books/' + a,
     headers: <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
     },
@@ -35,8 +35,9 @@ class UpdateBook extends StatelessWidget {
   final Book book;
   UpdateBook(this.book);
 
-  final TextEditingController _controller1 = TextEditingController();
-  final TextEditingController _controller2 = TextEditingController();
+   TextEditingController _controller1 = TextEditingController();
+   TextEditingController _controller2 = TextEditingController();
+
   Future<Book> _futureBook;
 
   @override
@@ -56,32 +57,27 @@ class UpdateBook extends StatelessWidget {
           child: FutureBuilder<Book>(
             future: _futureBook,
             builder: (BuildContext context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                if (snapshot.hasData) {
+
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Text(snapshot.data.bookname),
-                      TextField(
-                        controller: _controller1,
-                        decoration: InputDecoration(hintText: 'Enter Name'),
+                      Text(book.bookname),
+                      TextFormField(
+                        controller: _controller1 = TextEditingController(text: book.bookname),
                       ),
-                      TextField(
-                        controller: _controller2,
-                        decoration: InputDecoration(hintText: 'Enter Year'),
+                      TextFormField(
+                        controller: _controller2 = TextEditingController(text: book.year),
                       ),
                       RaisedButton(
-                        child: Text('Update Data'),
+                        child: Text('Update Book'),
                         onPressed: () {
                             _futureBook = updateBook(book.bid, _controller1.text, _controller2.text);
+                            Navigator.canPop(context);
+
                         },
                       ),
                     ],
                   );
-                } else if (snapshot.hasError) {
-                  return Text("${snapshot.error}");
-                }
-              } else return Text('there is error');
 
               return CircularProgressIndicator();
             },

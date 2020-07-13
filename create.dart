@@ -26,8 +26,8 @@ Future<Book> createBook(String bookname, year) async {
 
 
 class CreateBook extends StatelessWidget {
-  final TextEditingController _controller = TextEditingController();
-  final TextEditingController myController = TextEditingController();
+  final TextEditingController _controller1 = TextEditingController();
+  final TextEditingController _controller2 = TextEditingController();
   Future<Book> _futureAlbum;
 
   @override
@@ -49,17 +49,17 @@ class CreateBook extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               TextField(
-                controller: _controller,
+                controller: _controller1,
                 decoration: InputDecoration(hintText: 'Enter Title'),
               ),
               TextField(
-                controller: myController,
+                controller: _controller2,
                 decoration: InputDecoration(hintText: 'Enter Year'),
               ),
               RaisedButton(
                 child: Text('Add book'),
                 onPressed: () {
-                  _futureAlbum = createBook(_controller.text, myController.text);
+                  _futureAlbum = createBook(_controller1.text, _controller2.text);
                   Navigator.pop(context);
                 },
               ),

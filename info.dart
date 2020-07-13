@@ -5,6 +5,7 @@ import 'dart:convert';
 
 import 'package:fetchlist/update.dart';
 import 'package:fetchlist/main.dart';
+import 'package:fetchlist/delete.dart';
 
 Future<Book> fetchBook(index) async {
   var a = index.toString();
@@ -54,9 +55,11 @@ class DetailPage extends StatelessWidget {
                 alignment: Alignment.bottomRight,
                 child: FloatingActionButton(
                   heroTag: "btn1",
-                  onPressed: () async{
-                  await deleteBook(book.bid);
-                  Navigator.pop(context);
+                  onPressed: () {
+                    Navigator.push(context,
+                        new MaterialPageRoute(builder: (context) => DeleteBook(book))
+                    );
+                  Navigator.canPop(context);
                   },
                   child: const Icon(Icons.delete),
                 ),
@@ -69,6 +72,7 @@ class DetailPage extends StatelessWidget {
                     Navigator.push(context,
                         new MaterialPageRoute(builder: (context) => UpdateBook(book))
                     );
+                    Navigator.canPop(context);
                   },
                   child: Icon(Icons.edit),
                 ),

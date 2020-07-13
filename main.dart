@@ -12,19 +12,14 @@ import 'package:fetchlist/create.dart';
 Future<List<Book>> fetchBooks(http.Client client) async {
   final response =
   await client.get('http://192.168.0.5:8080/books');
-
-  // Use the compute function to run parsePhotos in a separate isolate.
   return compute(parseBooks, response.body);
 }
 
-// A function that converts a response body into a List<Photo>.
+
 List<Book> parseBooks(String responseBody) {
   final parsed = jsonDecode(responseBody).cast<Map<String, dynamic>>();
-
   return parsed.map<Book>((json) => Book.fromJson(json)).toList();
 }
-
-
 
 void main() => runApp(MyApp());
 
@@ -87,14 +82,6 @@ class BooksList extends StatelessWidget {
       itemBuilder: (context, index) {
         return ListTile(
           title: Text(books[index].bookname),
-//          subtitle: Checkbox(
-//            value: book.isDone,
-//            onChanged: (bool value){
-//
-//                book.isDone = value;
-//
-//            }
-//          ),
           onTap:(){
             Navigator.push(context,
                 new MaterialPageRoute(builder: (context) => DetailPage(books[index]))
@@ -110,16 +97,14 @@ class Book {
   final int bid;
   final String bookname;
   final String year;
-  bool isDone = false;
 
-  Book({this.bid, this.bookname, this.year, this.isDone = true});
+  Book({this.bid, this.bookname, this.year});
 
   factory Book.fromJson(Map<String, dynamic> json) {
     return Book(
       bid: json['bid'] as int,
       bookname: json['bookname'] as String,
       year: json['year'] as String,
-      isDone: json['read'] as bool,
     );
   }
 }

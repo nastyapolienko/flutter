@@ -13,7 +13,7 @@ Future<Book> fetchBook(int index) async {
   if (response.statusCode == 200) {
     return Book.fromJson(json.decode(response.body));
   } else {
-    throw Exception('Failed to load album');
+    throw Exception('Failed to load book');
   }
 }
 
@@ -29,21 +29,22 @@ Future<Book> deleteBook(int index) async {
   if (response.statusCode == 200) {
     return Book.fromJson(jsonDecode(response.body));
   } else {
-    throw Exception('Failed to delete album.');
+    throw Exception('Failed to delete book.');
   }
 }
 
 
 class DeleteBook extends StatelessWidget {
 
-  final int bid;
-  DeleteBook(this.bid);
+  final Book book;
+  DeleteBook(this.book);
+
 
   Future<Book> _futureBook;
 
   @override
   void initState() {
-    _futureBook = fetchBook(bid);
+    _futureBook = fetchBook(book.bid);
   }
 
   @override
@@ -61,25 +62,21 @@ class DeleteBook extends StatelessWidget {
           child: FutureBuilder<Book>(
             future: _futureBook,
             builder: (context, snapshot) {
-              if (snapshot.connectionState == ConnectionState.done) {
-                if (snapshot.hasData) {
                   return Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      Text('${snapshot.data?.bookname ?? 'Deleted'}'),
+                      Text('${book?.bookname ?? 'Deleted'}'),
                       RaisedButton(
-                        child: Text('Delete Data'),
+                        child: Text('Delete Book'),
                         onPressed: () {
                             _futureBook =
-                                deleteBook(snapshot.data.bid);
+                                deleteBook(book.bid);
+                            Navigator.canPop(context);
                         },
                       ),
                     ],
                   );
-                } else if (snapshot.hasError) {
-                  return Text("${snapshot.error}");
-                }
-              }
+
 
               return CircularProgressIndicator();
             },
